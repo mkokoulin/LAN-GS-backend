@@ -15,8 +15,7 @@
 *.out
 
 # Binaries
-cmd/shortener/main
-cmd/shortener/shortener
+cmd/main
 
 # Dependency directories (remove the comment below to include it)
 vendor/
@@ -28,3 +27,4 @@ vendor/
 env.json
 
 lan-site-94255-b56432cf737d.json
+.env
