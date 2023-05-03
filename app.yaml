@@ -1,0 +1,10 @@
+runtime: go120  # or another supported version
+
+instance_class: F2
+
+env_variables:
+  SERVER_ADDRESS: ":8080"
+  SECRET_PATH: "lan-site-94255-b56432cf737d.json"
+  SCOPE: "https://www.googleapis.com/auth/spreadsheets"
+  SPREADSHEET_ID: "1DbNF1xd8Un3GwCWIhTsFfsdazIZC3kSOLOSw0byulJA"
+  READ_RANGE: "Лист2!2:1000"
