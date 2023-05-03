@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -43,8 +44,13 @@ func main() {
 
 	s := server.New(cfg.ServerAddress, r)
 
+	var stop func(ctx context.Context) error
+
 	g.Go(func() error {
-		s.Start()
+		stop, err = s.Start()
+		if err != nil {
+			return fmt.Errorf("%v", err)
+		}
 
 		log.Printf("httpServer starting at: %v", cfg.ServerAddress)
 
@@ -53,6 +59,7 @@ func main() {
 
 	select {
 	case <-interrupt:
+		stop(ctx)
 		log.Println("Stop server")
 		break
 	case <-ctx.Done():
@@ -61,6 +68,8 @@ func main() {
 
 	err = g.Wait()
 	if err != nil {
+		stop(ctx)
 		log.Printf("server returning an error: %v", err)
+		return
 	}
 }
