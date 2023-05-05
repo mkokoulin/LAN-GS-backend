@@ -14,7 +14,6 @@ func NewGoogleClient(ctx context.Context, secretPath string, scope ...string) (*
     if err != nil {
 		return nil, fmt.Errorf("Unable to read client secret file: %v", err)
     }
-
 	// authenticate and get configuration
 	config, err := google.JWTConfigFromJSON(data, scope...)
 	if err != nil {

@@ -19,10 +19,7 @@ type SheetsService struct {
 type Event struct {
 	Name string `mapstructure:"name"`	
 	Description	string `mapstructure:"description"`
-	DateFrom string `mapstructure:"date_from"`
-	DateTo string `mapstructure:"date_to"`
 	GoogleForm string `mapstructure:"google_form"`
-	Payment	string `mapstructure:"payment"`
 }
 
 func NewGoogleSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*SheetsService, error) {
@@ -49,10 +46,7 @@ func (SS *SheetsService) GetEvents(ctx context.Context) ([]Event, error) {
 	colMap := map[int]string {
 		0: "name",
 		1: "description",
-		2: "date_from",
-		3: "date_to",
-		4: "google_form",
-		5: "payment",
+		2: "google_form",
 	}
 
 	for _, val := range res.Values {

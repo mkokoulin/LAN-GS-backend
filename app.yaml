@@ -6,5 +6,5 @@ env_variables:
   SERVER_ADDRESS: ":8080"
   SECRET_PATH: "lan-site-94255-b56432cf737d.json"
   SCOPE: "https://www.googleapis.com/auth/spreadsheets"
-  SPREADSHEET_ID: "1DbNF1xd8Un3GwCWIhTsFfsdazIZC3kSOLOSw0byulJA"
-  READ_RANGE: "Лист2!2:1000"
+  SPREADSHEET_ID: "1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0"
+  READ_RANGE: "master!2:1000"
