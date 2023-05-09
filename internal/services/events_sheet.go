@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
-type SheetsService struct {
+type EventsSheetService struct {
 	spreadsheetId string
 	readRange string
 	srv *sheets.Service
@@ -19,24 +19,23 @@ type SheetsService struct {
 type Event struct {
 	Name string `mapstructure:"name"`	
 	Description	string `mapstructure:"description"`
-	GoogleForm string `mapstructure:"google_form"`
 }
 
-func NewGoogleSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*SheetsService, error) {
+func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EventsSheetService, error) {
 	srv, err := sheets.NewService(ctx, option.WithHTTPClient(googleClient))
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}
 
-	return &SheetsService {
+	return &EventsSheetService {
 		spreadsheetId,
 		readRange,
 		srv,
 	}, nil
 }
 
-func (SS *SheetsService) GetEvents(ctx context.Context) ([]Event, error) {
-	res, err := SS.srv.Spreadsheets.Values.Get(SS.spreadsheetId, SS.readRange).Do()
+func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, ESS.readRange).Do()
 	if err != nil || res.HTTPStatusCode != 200 {
 		return nil, fmt.Errorf("%v", err)
 	}
@@ -46,7 +45,6 @@ func (SS *SheetsService) GetEvents(ctx context.Context) ([]Event, error) {
 	colMap := map[int]string {
 		0: "name",
 		1: "description",
-		2: "google_form",
 	}
 
 	for _, val := range res.Values {

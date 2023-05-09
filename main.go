@@ -32,13 +32,20 @@ func main() {
 		return
 	}
 
-	ss, err := services.NewGoogleSheets(ctx, gc, cfg.GoogleSheets.SpreadsheetId, cfg.GoogleSheets.ReadRange)
+	eventsSheets, err := services.NewEventsSheets(ctx, gc, cfg.GoogleSheets.Event.SpreadsheetId, cfg.GoogleSheets.Event.ReadRange)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	h := handlers.New(ss)
+	fmt.Println(cfg.GoogleSheets.Entries.SpreadsheetId)
+	entriesSheets, err := services.NewEntriesSheets(ctx, gc, cfg.GoogleSheets.Entries.SpreadsheetId, cfg.GoogleSheets.Entries.ReadRange)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	h := handlers.New(eventsSheets, entriesSheets)
 
 	r := router.New(h)
 
