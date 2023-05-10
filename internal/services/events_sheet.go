@@ -19,6 +19,7 @@ type EventsSheetService struct {
 type Event struct {
 	Name string `mapstructure:"name"`	
 	Description	string `mapstructure:"description"`
+	Link string `mapstructure:"link"`
 }
 
 func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EventsSheetService, error) {
@@ -45,6 +46,7 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 	colMap := map[int]string {
 		0: "name",
 		1: "description",
+		2: "link",
 	}
 
 	for _, val := range res.Values {
