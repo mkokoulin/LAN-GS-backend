@@ -15,7 +15,10 @@ func New(h *handlers.Handlers) *chi.Mux {
 
 	router.Route("/", func(r chi.Router) {
 		r.Get("/api/events", h.GetEvents)
-		r.Post("/api/entries", h.UpdateEvents)
+		r.Post("/api/events/update", h.UpdateEvent)
+		r.Post("/api/entries", h.CreateEntrie)
+		r.Post("/api/entries/cancel", h.CancelEntrie)
+		r.Put("/api/entries/update", h.UpdateEntrie)
 	})
 
 	return router

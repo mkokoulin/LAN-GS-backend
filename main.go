@@ -38,7 +38,6 @@ func main() {
 		return
 	}
 
-	fmt.Println(cfg.GoogleSheets.Entries.SpreadsheetId)
 	entriesSheets, err := services.NewEntriesSheets(ctx, gc, cfg.GoogleSheets.Entries.SpreadsheetId, cfg.GoogleSheets.Entries.ReadRange)
 	if err != nil {
 		log.Fatal(err)

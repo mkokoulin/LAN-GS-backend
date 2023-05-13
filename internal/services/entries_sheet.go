@@ -16,16 +16,24 @@ type EntriesSheetService struct {
 }
 
 type Entrie struct {
-	Id string `mapstructure:"id"`
-	Name string `mapstructure:"name"`
-	Email string `mapstructure:"email"`
-	Phone string `mapstructure:"phone"`
-	NumberOfPersons string `mapstructure:"numberOfPersons"`
-	Social string `mapstructure:"social"`
-	Date string `mapstructure:"date"`
-	Event string `mapstructure:"event"`
-	Comment	string `mapstructure:"comment"`
-	WillCome string `mapstructure:"willCome"`
+	Id string `json:"id" mapstructure:"id"`
+	Name string `json:"name" mapstructure:"name"`
+	Email string `json:"email" mapstructure:"email"`
+	Phone string `json:"phone" mapstructure:"phone"`
+	NumberOfPersons string `json:"numberOfPersons" mapstructure:"numberOfPersons"`
+	Social string `json:"social" mapstructure:"social"`
+	Date string `json:"date" mapstructure:"date"`
+	Event string `json:"event" mapstructure:"event"`
+	Comment	string `json:"comment" mapstructure:"comment"`
+	WillCome bool `json:"willCome" mapstructure:"willCome"`
+}
+
+type EntrieResponse struct {
+	Id string `json:"id" mapstructure:"id"`
+}
+
+type CancelEntrieResponse struct {
+	Id string `json:"id" mapstructure:"id"`
 }
 
 func NewEntriesSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EntriesSheetService, error) {
@@ -40,12 +48,13 @@ func NewEntriesSheets(ctx context.Context, googleClient *http.Client, spreadshee
 	}, nil
 }
 
-func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie) error {
-	readRange := "master!2:1000" 
+func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie) (EntrieResponse, error) {
+	readRange := "master!2:1000"
+	response := EntrieResponse {}
 
 	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
 	if err != nil || res.HTTPStatusCode != 200 {
-		return fmt.Errorf("%v", err)
+		return response, fmt.Errorf("%v", err)
 	}
 
 	tableLen := len(res.Values) + 2
@@ -70,6 +79,94 @@ func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie)
 	}
 
 	_, err = ESS.srv.Spreadsheets.Values.Update(ESS.spreadsheetId, newReadRange, row).ValueInputOption("USER_ENTERED").Context(ctx).Do()
+	if err != nil {
+		return response, fmt.Errorf("%v", err)
+	}
+
+	response.Id = id.String()
+
+	return response, nil
+}
+
+func (ESS *EntriesSheetService) UpdateEntrie(ctx context.Context, entrie Entrie) error {
+	var rowNumber int
+	readRange := "master!2:1000" 
+
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
+	if err != nil || res.HTTPStatusCode != 200 {
+		return fmt.Errorf("%v", err)
+	}
+
+	for i, v := range res.Values {
+		if v[0] == entrie.Id {
+			rowNumber = i + 2
+		}
+	}
+
+	updateRowRange := fmt.Sprintf("A%d:J%d", rowNumber, rowNumber)
+
+	row := &sheets.ValueRange{
+		Values: [][]interface{}{{
+			entrie.Id,
+			entrie.Name,
+			entrie.Email,
+			entrie.Phone,
+			entrie.NumberOfPersons,
+			entrie.Social,
+			entrie.Date,
+			entrie.Event,
+			entrie.Comment,
+			entrie.WillCome,
+		}},
+	}
+
+	_, err = ESS.srv.Spreadsheets.Values.Update(ESS.spreadsheetId, updateRowRange, row).ValueInputOption("USER_ENTERED").Context(ctx).Do()
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	return nil
+}
+
+func (ESS *EntriesSheetService) CancelEntrie(ctx context.Context, cancelEntrie CancelEntrieResponse) error {
+	var rowNumber int
+	var entrie []interface{}
+	readRange := "master!2:1000" 
+
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
+	if err != nil || res.HTTPStatusCode != 200 {
+		return fmt.Errorf("%v", err)
+	}
+
+	for i, v := range res.Values {
+		if v[7] == cancelEntrie.Id {
+			rowNumber = i + 2
+			entrie = v
+		}
+	}
+
+	if entrie == nil {
+		return nil
+	}
+
+	updateRowRange := fmt.Sprintf("A%d:J%d", rowNumber, rowNumber)
+
+	row := &sheets.ValueRange{
+		Values: [][]interface{}{{
+			entrie[0],
+			entrie[1],
+			entrie[2],
+			entrie[3],
+			entrie[4],
+			entrie[5],
+			entrie[6],
+			entrie[7],
+			entrie[8],
+			false,
+		}},
+	}
+
+	_, err = ESS.srv.Spreadsheets.Values.Update(ESS.spreadsheetId, updateRowRange, row).ValueInputOption("USER_ENTERED").Context(ctx).Do()
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}

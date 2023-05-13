@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -17,9 +18,49 @@ type EventsSheetService struct {
 }
 
 type Event struct {
-	Name string `mapstructure:"name"`	
-	Description	string `mapstructure:"description"`
-	Link string `mapstructure:"link"`
+	Id string `json:"id" mapstructure:"id"`
+	Name string `json:"name" mapstructure:"name"`	
+	Description	string `json:"description" mapstructure:"description"`
+	Link string `json:"link" mapstructure:"link"`
+}
+
+type EventResponse struct {
+	Id string `json:"id" mapstructure:"id"`
+	Name string `json:"name" mapstructure:"name"`	
+	Description	string `json:"description" mapstructure:"description"`
+	Link string `json:"link" mapstructure:"link"`
+}
+
+func (e *Event) MarshalJSON() ([]byte, error) {
+	aliasValue := struct {
+		Id string `json:"id" mapstructure:"id"`
+		Name string `json:"name" mapstructure:"name"`
+		Description	string `json:"description" mapstructure:"description"`
+		Link string `json:"link" mapstructure:"link"`
+	}{
+		Id: e.Id,
+		Name: e.Name,
+		Description: e.Description,
+		Link: e.Link,
+	}
+	return json.Marshal(aliasValue)
+}
+
+func (e *Event) UnmarshalJSON(b []byte) error {
+	var ev EventResponse
+	
+	if err := json.Unmarshal(b, &ev); err != nil {
+		return err
+	}
+
+	*e = Event {
+		Id: ev.Id,
+		Name: ev.Name,
+		Description: ev.Description,
+		Link: ev.Link,
+	}
+	
+	return nil
 }
 
 func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EventsSheetService, error) {
@@ -44,9 +85,10 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 	events := []Event{}
 
 	colMap := map[int]string {
-		0: "name",
-		1: "description",
-		2: "link",
+		0: "id",
+		1: "name",
+		2: "description",
+		3: "link",
 	}
 
 	for _, val := range res.Values {
@@ -55,7 +97,7 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 		for i, v := range val {
 			col, ok := colMap[i]
 			if ok {
-				e[col] = v.(string)
+				e[col] = v
 			}
 		}
 
@@ -67,4 +109,38 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 	}
 
 	return events, nil
+}
+
+func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) error {
+	var rowNumber int
+	readRange := "master!2:1000" 
+
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
+	if err != nil || res.HTTPStatusCode != 200 {
+		return fmt.Errorf("%v", err)
+	}
+
+	for i, v := range res.Values {
+		if v[0].(string) + v[1].(string) == event.Name + event.Description {
+			rowNumber = i + 2
+		}
+	}
+
+	updateRowRange := fmt.Sprintf("A%d:D%d", rowNumber, rowNumber)
+
+	row := &sheets.ValueRange{
+		Values: [][]interface{}{{
+			event.Id,
+			event.Name,
+			event.Description,
+			event.Link,
+		}},
+	}
+
+	_, err = ESS.srv.Spreadsheets.Values.Update(ESS.spreadsheetId, updateRowRange, row).ValueInputOption("USER_ENTERED").Context(ctx).Do()
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
+
+	return nil
 }
