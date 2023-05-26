@@ -19,6 +19,7 @@ type GSEntriesInterface interface {
 	CreateEntrie(ctx context.Context, entrie services.Entrie) (services.EntrieResponse, error)
 	UpdateEntrie(ctx context.Context, entrie services.Entrie) error
 	CancelEntrie(ctx context.Context, entrie services.CancelEntrieResponse) error
+	GetUniqueEntries(ctx context.Context) (map[string]int, error)
 }
 
 type Handlers struct {
@@ -219,5 +220,33 @@ func (h *Handlers) CancelEntrie(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (h *Handlers) GetUniqueEntries(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
+
+	entries, err := h.entries.GetUniqueEntries(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// if len(entries) == 0 {
+	// 	http.Error(w, errors.New("no content").Error(), http.StatusNoContent)
+	// 	return
+	// }
+
+	body, err := json.Marshal(entries)
+
+	if err == nil {
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+		w.WriteHeader(http.StatusOK)
+
+		_, err = w.Write(body)
+		if err == nil {
+			return
+		}
 	}
 }

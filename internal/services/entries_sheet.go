@@ -173,3 +173,27 @@ func (ESS *EntriesSheetService) CancelEntrie(ctx context.Context, cancelEntrie C
 
 	return nil
 }
+
+func (ESS *EntriesSheetService) GetUniqueEntries(ctx context.Context) (map[string]int, error) {
+	uniqueEntries := map[string]int {}
+	readRange := "master!2:1000"
+
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
+	if err != nil || res.HTTPStatusCode != 200 {
+		return nil, fmt.Errorf("%v", err)
+	}
+
+	for _, v := range res.Values {
+		eventId := v[7]
+
+		_, ok := uniqueEntries[eventId.(string)]
+
+		if ok {
+			uniqueEntries[eventId.(string)] += 1
+		} else {
+			uniqueEntries[eventId.(string)] = 1
+		}
+	}
+
+	return uniqueEntries, nil
+}

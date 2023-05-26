@@ -22,6 +22,8 @@ type Event struct {
 	Name string `json:"name" mapstructure:"name"`	
 	Description	string `json:"description" mapstructure:"description"`
 	Link string `json:"link" mapstructure:"link"`
+	ExternalLink string `json:"external_link" mapstructure:"external_link"`
+	Capacity string `json:"capacity" mapstructure:"capacity"`
 }
 
 type EventResponse struct {
@@ -29,6 +31,8 @@ type EventResponse struct {
 	Name string `json:"name" mapstructure:"name"`	
 	Description	string `json:"description" mapstructure:"description"`
 	Link string `json:"link" mapstructure:"link"`
+	ExternalLink string `json:"external_link" mapstructure:"external_link"`
+	Capacity string `json:"capacity" mapstructure:"capacity"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
@@ -37,11 +41,15 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Name string `json:"name" mapstructure:"name"`
 		Description	string `json:"description" mapstructure:"description"`
 		Link string `json:"link" mapstructure:"link"`
+		ExternalLink string `json:"external_link" mapstructure:"external_link"`
+		Capacity string `json:"capacity" mapstructure:"capacity"`
 	}{
 		Id: e.Id,
 		Name: e.Name,
 		Description: e.Description,
 		Link: e.Link,
+		ExternalLink: e.ExternalLink,
+		Capacity: e.Capacity,
 	}
 	return json.Marshal(aliasValue)
 }
@@ -58,6 +66,8 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		Name: ev.Name,
 		Description: ev.Description,
 		Link: ev.Link,
+		ExternalLink: ev.ExternalLink,
+		Capacity: ev.Capacity,
 	}
 	
 	return nil
@@ -89,6 +99,8 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 		1: "name",
 		2: "description",
 		3: "link",
+		4: "external_link",
+		5: "capacity",
 	}
 
 	for _, val := range res.Values {
