@@ -21,7 +21,8 @@ type Entrie struct {
 	Email string `json:"email" mapstructure:"email"`
 	Phone string `json:"phone" mapstructure:"phone"`
 	NumberOfPersons string `json:"numberOfPersons" mapstructure:"numberOfPersons"`
-	Social string `json:"social" mapstructure:"social"`
+	Instagram string `json:"instagram" mapstructure:"instagram"`
+	Telegram string `json:"telegram" mapstructure:"telegram"`
 	Date string `json:"date" mapstructure:"date"`
 	Event string `json:"event" mapstructure:"event"`
 	Comment	string `json:"comment" mapstructure:"comment"`
@@ -70,7 +71,8 @@ func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie)
 			entrie.Email,
 			entrie.Phone,
 			entrie.NumberOfPersons,
-			entrie.Social,
+			entrie.Instagram,
+			entrie.Telegram,
 			entrie.Date,
 			entrie.Event,
 			entrie.Comment,
@@ -112,7 +114,8 @@ func (ESS *EntriesSheetService) UpdateEntrie(ctx context.Context, entrie Entrie)
 			entrie.Email,
 			entrie.Phone,
 			entrie.NumberOfPersons,
-			entrie.Social,
+			entrie.Instagram,
+			entrie.Telegram,
 			entrie.Date,
 			entrie.Event,
 			entrie.Comment,
@@ -184,7 +187,7 @@ func (ESS *EntriesSheetService) GetUniqueEntries(ctx context.Context) (map[strin
 	}
 
 	for _, v := range res.Values {
-		eventId := v[7]
+		eventId := v[8]
 
 		_, ok := uniqueEntries[eventId.(string)]
 
