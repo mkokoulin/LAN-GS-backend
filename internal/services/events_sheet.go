@@ -13,63 +13,63 @@ import (
 
 type EventsSheetService struct {
 	spreadsheetId string
-	readRange string
-	srv *sheets.Service
+	readRange     string
+	srv           *sheets.Service
 }
 
 type Event struct {
-	Id string `json:"id" mapstructure:"id"`
-	Name string `json:"name" mapstructure:"name"`	
-	Description	string `json:"description" mapstructure:"description"`
-	Link string `json:"link" mapstructure:"link"`
-	ExternalLink string `json:"external_link" mapstructure:"external_link"`
-	Capacity string `json:"capacity" mapstructure:"capacity"`
+	Id           string `json:"id" mapstructure:"id"`
+	Name         string `json:"name" mapstructure:"name"`
+	Description  string `json:"description" mapstructure:"description"`
+	Link         string `json:"link" mapstructure:"link"`
+	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
+	Capacity     string `json:"capacity" mapstructure:"capacity"`
 }
 
 type EventResponse struct {
-	Id string `json:"id" mapstructure:"id"`
-	Name string `json:"name" mapstructure:"name"`	
-	Description	string `json:"description" mapstructure:"description"`
-	Link string `json:"link" mapstructure:"link"`
-	ExternalLink string `json:"external_link" mapstructure:"external_link"`
-	Capacity string `json:"capacity" mapstructure:"capacity"`
+	Id           string `json:"id" mapstructure:"id"`
+	Name         string `json:"name" mapstructure:"name"`
+	Description  string `json:"description" mapstructure:"description"`
+	Link         string `json:"link" mapstructure:"link"`
+	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
+	Capacity     string `json:"capacity" mapstructure:"capacity"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
-		Id string `json:"id" mapstructure:"id"`
-		Name string `json:"name" mapstructure:"name"`
-		Description	string `json:"description" mapstructure:"description"`
-		Link string `json:"link" mapstructure:"link"`
-		ExternalLink string `json:"external_link" mapstructure:"external_link"`
-		Capacity string `json:"capacity" mapstructure:"capacity"`
+		Id           string `json:"id" mapstructure:"id"`
+		Name         string `json:"name" mapstructure:"name"`
+		Description  string `json:"description" mapstructure:"description"`
+		Link         string `json:"link" mapstructure:"link"`
+		ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
+		Capacity     string `json:"capacity" mapstructure:"capacity"`
 	}{
-		Id: e.Id,
-		Name: e.Name,
-		Description: e.Description,
-		Link: e.Link,
+		Id:           e.Id,
+		Name:         e.Name,
+		Description:  e.Description,
+		Link:         e.Link,
 		ExternalLink: e.ExternalLink,
-		Capacity: e.Capacity,
+		Capacity:     e.Capacity,
 	}
 	return json.Marshal(aliasValue)
 }
 
 func (e *Event) UnmarshalJSON(b []byte) error {
 	var ev EventResponse
-	
+
 	if err := json.Unmarshal(b, &ev); err != nil {
 		return err
 	}
 
-	*e = Event {
-		Id: ev.Id,
-		Name: ev.Name,
-		Description: ev.Description,
-		Link: ev.Link,
+	*e = Event{
+		Id:           ev.Id,
+		Name:         ev.Name,
+		Description:  ev.Description,
+		Link:         ev.Link,
 		ExternalLink: ev.ExternalLink,
-		Capacity: ev.Capacity,
+		Capacity:     ev.Capacity,
 	}
-	
+
 	return nil
 }
 
@@ -79,7 +79,7 @@ func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheet
 		return nil, fmt.Errorf("%v", err)
 	}
 
-	return &EventsSheetService {
+	return &EventsSheetService{
 		spreadsheetId,
 		readRange,
 		srv,
@@ -94,17 +94,17 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 
 	events := []Event{}
 
-	colMap := map[int]string {
+	colMap := map[int]string{
 		0: "id",
 		1: "name",
 		2: "description",
 		3: "link",
-		4: "external_link",
+		4: "externalLink",
 		5: "capacity",
 	}
 
 	for _, val := range res.Values {
-		e := map[string]interface{} {}
+		e := map[string]interface{}{}
 
 		for i, v := range val {
 			col, ok := colMap[i]
@@ -116,7 +116,7 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 		var event Event
 
 		mapstructure.Decode(e, &event)
-		
+
 		events = append(events, event)
 	}
 
@@ -125,7 +125,7 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 
 func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) error {
 	var rowNumber int
-	readRange := "master!2:1000" 
+	readRange := "master!2:1000"
 
 	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
 	if err != nil || res.HTTPStatusCode != 200 {
@@ -133,12 +133,12 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 	}
 
 	for i, v := range res.Values {
-		if v[0].(string) + v[1].(string) == event.Name + event.Description {
+		if v[0].(string)+v[1].(string) == event.Name+event.Description {
 			rowNumber = i + 2
 		}
 	}
 
-	updateRowRange := fmt.Sprintf("A%d:D%d", rowNumber, rowNumber)
+	updateRowRange := fmt.Sprintf("A%d:E%d", rowNumber, rowNumber)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
@@ -146,6 +146,7 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 			event.Name,
 			event.Description,
 			event.Link,
+			event.ExternalLink,
 		}},
 	}
 

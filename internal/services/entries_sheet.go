@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"google.golang.org/api/option"
@@ -17,6 +19,7 @@ type EntriesSheetService struct {
 
 type Entrie struct {
 	Id string `json:"id" mapstructure:"id"`
+	CreationDate string `json:"creationDate" mapstructure:"creationDate"`
 	Name string `json:"name" mapstructure:"name"`
 	Email string `json:"email" mapstructure:"email"`
 	Phone string `json:"phone" mapstructure:"phone"`
@@ -24,7 +27,7 @@ type Entrie struct {
 	Instagram string `json:"instagram" mapstructure:"instagram"`
 	Telegram string `json:"telegram" mapstructure:"telegram"`
 	Date string `json:"date" mapstructure:"date"`
-	Event string `json:"event" mapstructure:"event"`
+	EventId string `json:"eventId" mapstructure:"eventId"`
 	Comment	string `json:"comment" mapstructure:"comment"`
 	WillCome bool `json:"willCome" mapstructure:"willCome"`
 }
@@ -36,6 +39,21 @@ type EntrieResponse struct {
 type CancelEntrieResponse struct {
 	Id string `json:"id" mapstructure:"id"`
 }
+
+const (
+	Id = 0
+	CreationDate = 1
+	Name = 2
+	Email = 3
+	Phone = 4
+	NumberOfPersons = 5
+	Instagram = 6
+	Telegram = 7
+	Date = 8
+	EventId = 9
+	Comment = 10
+	WillCome = 11
+)
 
 func NewEntriesSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EntriesSheetService, error) {
 	srv, err := sheets.NewService(ctx, option.WithHTTPClient(googleClient))
@@ -60,13 +78,17 @@ func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie)
 
 	tableLen := len(res.Values) + 2
 
-	newReadRange := fmt.Sprintf("A%v:J%v", tableLen, tableLen)
+	newReadRange := fmt.Sprintf("A%v:L%v", tableLen, tableLen)
 
 	id := uuid.New()
+
+	now := time.Now()
+	formatted := now.Format(time.RFC3339)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
 			id.String(),
+			formatted,
 			entrie.Name,
 			entrie.Email,
 			entrie.Phone,
@@ -74,7 +96,7 @@ func (ESS *EntriesSheetService) CreateEntrie(ctx context.Context, entrie Entrie)
 			entrie.Instagram,
 			entrie.Telegram,
 			entrie.Date,
-			entrie.Event,
+			entrie.EventId,
 			entrie.Comment,
 			true,
 		}},
@@ -100,16 +122,17 @@ func (ESS *EntriesSheetService) UpdateEntrie(ctx context.Context, entrie Entrie)
 	}
 
 	for i, v := range res.Values {
-		if v[0] == entrie.Id {
+		if v[Id] == entrie.Id {
 			rowNumber = i + 2
 		}
 	}
 
-	updateRowRange := fmt.Sprintf("A%d:J%d", rowNumber, rowNumber)
+	updateRowRange := fmt.Sprintf("A%d:L%d", rowNumber, rowNumber)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
 			entrie.Id,
+			entrie.CreationDate,
 			entrie.Name,
 			entrie.Email,
 			entrie.Phone,
@@ -117,7 +140,7 @@ func (ESS *EntriesSheetService) UpdateEntrie(ctx context.Context, entrie Entrie)
 			entrie.Instagram,
 			entrie.Telegram,
 			entrie.Date,
-			entrie.Event,
+			entrie.EventId,
 			entrie.Comment,
 			entrie.WillCome,
 		}},
@@ -142,7 +165,8 @@ func (ESS *EntriesSheetService) CancelEntrie(ctx context.Context, cancelEntrie C
 	}
 
 	for i, v := range res.Values {
-		if v[7] == cancelEntrie.Id {
+		fmt.Println(v[EventId], cancelEntrie.Id)
+		if v[EventId] == cancelEntrie.Id {
 			rowNumber = i + 2
 			entrie = v
 		}
@@ -152,19 +176,21 @@ func (ESS *EntriesSheetService) CancelEntrie(ctx context.Context, cancelEntrie C
 		return nil
 	}
 
-	updateRowRange := fmt.Sprintf("A%d:J%d", rowNumber, rowNumber)
+	updateRowRange := fmt.Sprintf("A%d:L%d", rowNumber, rowNumber)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
-			entrie[0],
-			entrie[1],
-			entrie[2],
-			entrie[3],
-			entrie[4],
-			entrie[5],
-			entrie[6],
-			entrie[7],
-			entrie[8],
+			entrie[Id],
+			entrie[CreationDate],
+			entrie[Name],
+			entrie[Email],
+			entrie[Phone],
+			entrie[NumberOfPersons],
+			entrie[Instagram],
+			entrie[Telegram],
+			entrie[Date],
+			entrie[EventId],
+			entrie[Comment],
 			false,
 		}},
 	}
@@ -187,14 +213,19 @@ func (ESS *EntriesSheetService) GetUniqueEntries(ctx context.Context) (map[strin
 	}
 
 	for _, v := range res.Values {
-		eventId := v[8]
+		eventId := v[EventId]
+		willCome, _ := strconv.ParseBool(v[WillCome].(string))
 
-		_, ok := uniqueEntries[eventId.(string)]
+		if willCome {
+			_, ok := uniqueEntries[eventId.(string)]
 
-		if ok {
-			uniqueEntries[eventId.(string)] += 1
-		} else {
-			uniqueEntries[eventId.(string)] = 1
+			outInt, _ := strconv.Atoi(v[NumberOfPersons].(string))
+	
+			if ok {
+				uniqueEntries[eventId.(string)] += outInt
+			} else {
+				uniqueEntries[eventId.(string)] = outInt
+			}
 		}
 	}
 
