@@ -1,6 +1,13 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.19
+FROM golang:1.19-alpine
+
+ENV SERVER_ADDRESS=:8002
+ENV SECRET_PATH=lan-site-94255-b56432cf737d.json
+ENV SCOPE=https://www.googleapis.com/auth/spreadsheets
+ENV EVENT_SPREADSHEET_ID=1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0
+ENV EVENT_READ_RANGE=master!2:1000
+ENV ENTRIES_SPREADSHEET_ID=1IglEBmeCFs9FwL0bQ1vh93b-wJp6KTWurRX2sxcsd3A
 
 # Set destination for COPY
 WORKDIR /app
