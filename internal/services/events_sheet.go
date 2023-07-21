@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/api/option"
@@ -20,6 +21,7 @@ type EventsSheetService struct {
 type Event struct {
 	Id           string `json:"id" mapstructure:"id"`
 	Name         string `json:"name" mapstructure:"name"`
+	Date     	 string `json:"date" mapstructure:"date"`
 	Description  string `json:"description" mapstructure:"description"`
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
@@ -29,6 +31,7 @@ type Event struct {
 type EventResponse struct {
 	Id           string `json:"id" mapstructure:"id"`
 	Name         string `json:"name" mapstructure:"name"`
+	Date     	 string `json:"date" mapstructure:"date"`
 	Description  string `json:"description" mapstructure:"description"`
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
@@ -39,6 +42,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 	aliasValue := struct {
 		Id           string `json:"id" mapstructure:"id"`
 		Name         string `json:"name" mapstructure:"name"`
+		Date         string `json:"date" mapstructure:"date"`
 		Description  string `json:"description" mapstructure:"description"`
 		Link         string `json:"link" mapstructure:"link"`
 		ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
@@ -46,6 +50,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 	}{
 		Id:           e.Id,
 		Name:         e.Name,
+		Date:         e.Date,
 		Description:  e.Description,
 		Link:         e.Link,
 		ExternalLink: e.ExternalLink,
@@ -97,10 +102,11 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 	colMap := map[int]string{
 		0: "id",
 		1: "name",
-		2: "description",
-		3: "link",
-		4: "externalLink",
-		5: "capacity",
+		2: "date",
+		3: "description",
+		4: "link",
+		5: "externalLink",
+		6: "capacity",
 	}
 
 	for _, val := range res.Values {
@@ -117,7 +123,13 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 
 		mapstructure.Decode(e, &event)
 
-		events = append(events, event)
+		now := time.Now()
+
+		date, _ := time.Parse("02.01.2006", event.Date)
+
+		if (date.Add(time.Hour * 24).After(now)) {
+			events = append(events, event)
+		}
 	}
 
 	return events, nil
@@ -144,6 +156,7 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 		Values: [][]interface{}{{
 			event.Id,
 			event.Name,
+			event.Date,
 			event.Description,
 			event.Link,
 			event.ExternalLink,
