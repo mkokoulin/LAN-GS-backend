@@ -4,7 +4,10 @@
 gcloud app deploy
 ````
 
-docker
+## Docker
 
+````
 docker ps -a
 docker build -t taplink .
+docker run --env-file ./.env taplink
+````
