@@ -49,14 +49,14 @@ FROM golang:1.18 AS build
 
 WORKDIR /app
 
-ENV SCOPE=value0
-ENV EVENT_SPREADSHEET_ID=value1
-ENV EVENT_READ_RANGE=value2
-ENV ENTRIES_SPREADSHEET_ID=value3
-ENV GOOGLE_SECRET=value4
+# ENV SCOPE=https://www.googleapis.com/auth/spreadsheets
+# ENV EVENT_SPREADSHEET_ID=1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0
+# ENV EVENT_READ_RANGE=master!2:1000
+# ENV ENTRIES_SPREADSHEET_ID=1IglEBmeCFs9FwL0bQ1vh93b-wJp6KTWurRX2sxcsd3A
 
 COPY go.mod .
 COPY go.sum .
+COPY google-config.json .
 
 # download Go modules and dependencies
 RUN go mod download
@@ -75,4 +75,4 @@ COPY --from=build /taplink /usr/local/bin/taplink
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/usr/local/bin/taplink" ]
+ENTRYPOINT /usr/local/bin/taplink --port 8080

@@ -65,6 +65,11 @@ func New() (*Config, error) {
 	gsc.Event = eventTable
 	gsc.Entries = entriesTable
 
+	gc.Scope="https://www.googleapis.com/auth/spreadsheets"
+	gsc.Event.SpreadsheetId="1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0"
+	gsc.Event.ReadRange="master!2:1000"
+	gsc.Entries.SpreadsheetId="1IglEBmeCFs9FwL0bQ1vh93b-wJp6KTWurRX2sxcsd3A"
+
 	cfg.Google = gc
 	cfg.GoogleSheets = gsc
 
