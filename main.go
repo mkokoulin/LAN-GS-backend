@@ -26,8 +26,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("ServerAddress: %s", cfg.ServerAddress)
-
 	gc, err := services.NewGoogleClient(ctx, cfg.Google.GoogleSecret, cfg.Google.Scope)
 	if err != nil {
 		log.Fatal(err)
@@ -50,24 +48,22 @@ func main() {
 
 	r := router.New(h)
 
-	s := server.New(cfg.ServerAddress, r)
+	s := server.New(r)
 
-	var stop func(ctx context.Context) error
+	// var stop func(ctx context.Context) error
 
 	g.Go(func() error {
-		stop, err = s.Start()
+		_, err = s.Start()
 		if err != nil {
 			return fmt.Errorf("%v", err)
 		}
-
-		log.Printf("httpServer starting at: %v", cfg.ServerAddress)
 
 		return nil
 	})
 
 	select {
 	case <-interrupt:
-		stop(ctx)
+		// stop(ctx)
 		log.Println("Stop server")
 		break
 	case <-ctx.Done():
@@ -76,7 +72,7 @@ func main() {
 
 	err = g.Wait()
 	if err != nil {
-		stop(ctx)
+		// stop(ctx)
 		log.Printf("server returning an error: %v", err)
 		return
 	}

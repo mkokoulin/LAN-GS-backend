@@ -11,9 +11,9 @@ type Server struct {
 	s *http.Server
 }
 
-func New(addr string, handler *chi.Mux) *Server {
+func New(handler *chi.Mux) *Server {
 	srv := &http.Server{
-		Addr:    addr,
+		Addr:    "localhost:8080",
 		Handler: handler,
 	}
 
