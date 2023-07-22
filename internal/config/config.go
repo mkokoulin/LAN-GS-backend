@@ -7,8 +7,8 @@ import (
 )
 
 type GoogleConfig struct {
-	SecretPath string `env:"SECRET_PATH" json:"SECRET_PATH"`
 	Scope string `env:"SCOPE" json:"SCOPE"`
+	GoogleSecret string `env:"GOOGLE_SECRET" json:"GOOGLE_SECRET"`
 }
 
 type EventTable struct {

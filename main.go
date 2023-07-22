@@ -26,7 +26,9 @@ func main() {
 		return
 	}
 
-	gc, err := services.NewGoogleClient(ctx, cfg.Google.SecretPath, cfg.Google.Scope)
+	fmt.Printf("ServerAddress: %s", cfg.ServerAddress)
+
+	gc, err := services.NewGoogleClient(ctx, cfg.Google.GoogleSecret, cfg.Google.Scope)
 	if err != nil {
 		log.Fatal(err)
 		return

@@ -4,19 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 
 	"golang.org/x/oauth2/google"
 )
 
-func NewGoogleClient(ctx context.Context, secretPath string, scope ...string) (*http.Client, error) {
-	data, err := os.ReadFile(secretPath)
-    if err != nil {
-		return nil, fmt.Errorf("Unable to read client secret file: %v", err)
-    }
-
+func NewGoogleClient(ctx context.Context, secret string, scope ...string) (*http.Client, error) {
 	// authenticate and get configuration
-	config, err := google.JWTConfigFromJSON(data, scope...)
+	config, err := google.JWTConfigFromJSON([]byte(secret), scope...)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}
