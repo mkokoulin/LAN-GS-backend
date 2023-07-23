@@ -7,6 +7,8 @@ WORKDIR /app
 
 COPY go.mod .
 COPY go.sum .
+COPY cert.pem .
+COPY key.pem .
 
 # download Go modules and dependencies
 RUN go mod download
