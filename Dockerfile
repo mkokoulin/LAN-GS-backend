@@ -3,7 +3,6 @@
 # Build
 
 FROM golang:1.18 AS build
-FROM nginx:alpine
 
 WORKDIR /app
 
@@ -28,6 +27,8 @@ COPY --from=build /taplink /usr/local/bin/taplink
 EXPOSE 8080
 
 ENTRYPOINT /usr/local/bin/taplink --port 8080
+
+FROM nginx:alpine
 
 # Copy your web application files into the image
 COPY . /usr/local/bin/taplink
