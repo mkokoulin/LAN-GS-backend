@@ -22,5 +22,5 @@ RUN go build -o /taplink
 FROM debian:latest
 WORKDIR /
 COPY --from=build /taplink /usr/local/bin/taplink
-EXPOSE 8080
-ENTRYPOINT /usr/local/bin/taplink --port 8080
+EXPOSE 443
+ENTRYPOINT /usr/local/bin/taplink --port 443
