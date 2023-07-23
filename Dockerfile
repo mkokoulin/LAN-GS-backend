@@ -16,12 +16,6 @@ COPY . ./
 
 RUN go build -o /taplink
 
-# Deploy 
-
-FROM debian:latest
-
-WORKDIR /
-
 COPY --from=build /taplink /usr/local/bin/taplink
 
 # EXPOSE 8080
@@ -48,6 +42,12 @@ RUN echo "server { \
         index index.html index.htm; \
     } \
 }" > /etc/nginx/conf.d/default.conf
+
+# Deploy 
+
+FROM debian:latest
+
+WORKDIR /
 
 # Expose the HTTPS port
 EXPOSE 443
