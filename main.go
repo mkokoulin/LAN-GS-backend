@@ -56,7 +56,7 @@ func main() {
 
 	g.Go(func() error {
 		// _, err = s.Start()
-		err = s.StartTLS("cert.pem", "key.pem")
+		err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
 		if err != nil {
 			return fmt.Errorf("%v", err)
 		}

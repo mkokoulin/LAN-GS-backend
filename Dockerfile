@@ -14,8 +14,8 @@ COPY . ./
 
 RUN go build -o /taplink
 
-COPY cert.pem /taplink
-COPY key.pem /taplink
+# COPY taplink-cert.pem /taplink
+# COPY taplink-key.pem /taplink
 
 # Deploy 
 
