@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # Build
-
+FROM debian:latest
 FROM golang:1.18 AS build
+
 
 WORKDIR /app
 
@@ -44,8 +45,6 @@ RUN echo "server { \
 }" > /etc/nginx/conf.d/default.conf
 
 # Deploy 
-
-FROM debian:latest
 
 WORKDIR /
 
