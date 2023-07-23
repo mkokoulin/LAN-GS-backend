@@ -24,14 +24,14 @@ WORKDIR /
 
 COPY --from=build /taplink /usr/local/bin/taplink
 
-EXPOSE 8080
+# EXPOSE 8080
 
-ENTRYPOINT /usr/local/bin/taplink --port 8080
+# ENTRYPOINT /usr/local/bin/taplink --port 8080
 
 FROM nginx:alpine
 
 # Copy your web application files into the image
-COPY . /usr/local/bin/taplink
+COPY /usr/local/bin/taplink /usr/share/nginx/html
 
 # Copy the SSL certificate files into the image
 COPY certificate.crt /etc/nginx/certs/certificate.crt
