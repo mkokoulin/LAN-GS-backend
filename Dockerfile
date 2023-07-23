@@ -7,14 +7,15 @@ WORKDIR /app
 
 COPY go.mod .
 COPY go.sum .
-COPY cert.pem .
-COPY key.pem .
 
 # download Go modules and dependencies
 RUN go mod download
 COPY . ./
 
 RUN go build -o /taplink
+
+COPY cert.pem /taplink
+COPY key.pem /taplink
 
 # Deploy 
 
