@@ -3,7 +3,7 @@ runtime: go120  # or another supported version
 instance_class: F2
 
 env_variables:
-  SERVER_ADDRESS: ":443"
+  SERVER_ADDRESS: ":8080"
   SCOPE: "https://www.googleapis.com/auth/spreadsheets"
   EVENT_SPREADSHEET_ID: "1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0"
   EVENT_READ_RANGE: "master!2:1000"

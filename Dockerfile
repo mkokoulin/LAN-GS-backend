@@ -1,28 +1,20 @@
-# syntax=docker/dockerfile:1
+# Use an official Golang runtime as a parent image
+FROM golang:latest
 
-# Build
-FROM golang:1.18 AS build
-
+# Set the working directory to /app
 WORKDIR /app
 
-COPY go.mod .
-COPY go.sum .
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-# download Go modules and dependencies
+# Download and install any required dependencies
 RUN go mod download
-COPY . ./
 
-RUN go build -o /taplink
+# Build the Go app
+RUN go build -o main .
 
-# COPY taplink-cert.pem /taplink
-# COPY taplink-key.pem /taplink
+# Expose port 8080 for incoming traffic
+EXPOSE 8080
 
-# Deploy 
-
-FROM debian:latest
-WORKDIR /
-COPY --from=build /taplink /usr/local/bin/taplink
-
-EXPOSE 443
-
-ENTRYPOINT /usr/local/bin/taplink
+# Define the command to run the app when the container starts
+CMD ["/app/main"]

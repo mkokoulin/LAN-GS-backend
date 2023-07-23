@@ -55,8 +55,8 @@ func main() {
 	// var stop func(ctx context.Context) error
 
 	g.Go(func() error {
-		// _, err = s.Start()
-		err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
+		_, err = s.Start()
+		// err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
 		if err != nil {
 			return fmt.Errorf("%v", err)
 		}
