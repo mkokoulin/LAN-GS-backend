@@ -30,3 +30,13 @@ func (s *Server) Start() (func(ctx context.Context) error, error) {
 
 	return s.s.Shutdown, nil
 }
+
+// StartTLS is the method to start the server with tls
+func (s *Server) StartTLS(certFile, keyFile string) error {
+	err := s.s.ListenAndServeTLS(certFile, keyFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
