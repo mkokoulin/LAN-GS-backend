@@ -26,6 +26,7 @@ type Event struct {
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
+	Type         string `json:"type" mapstructure:"type"`
 }
 
 type EventResponse struct {
@@ -36,6 +37,7 @@ type EventResponse struct {
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
+	Type         string `json:"type" mapstructure:"type"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
@@ -47,6 +49,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Link         string `json:"link" mapstructure:"link"`
 		ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 		Capacity     string `json:"capacity" mapstructure:"capacity"`
+		Type         string `json:"type" mapstructure:"type"`
 	}{
 		Id:           e.Id,
 		Name:         e.Name,
@@ -55,6 +58,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Link:         e.Link,
 		ExternalLink: e.ExternalLink,
 		Capacity:     e.Capacity,
+		Type:     	  e.Type,
 	}
 	return json.Marshal(aliasValue)
 }
@@ -73,6 +77,7 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		Link:         ev.Link,
 		ExternalLink: ev.ExternalLink,
 		Capacity:     ev.Capacity,
+		Type:         ev.Type,
 	}
 
 	return nil
