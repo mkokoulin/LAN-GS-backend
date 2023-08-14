@@ -13,7 +13,7 @@ type Server struct {
 
 func New(handler *chi.Mux) *Server {
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8000",
 		Handler: handler,
 	}
 
