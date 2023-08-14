@@ -8,7 +8,6 @@ import (
 
 	"github.com/mkokoulin/LAN-GS-backend/internal/config"
 	"github.com/mkokoulin/LAN-GS-backend/internal/handlers"
-	"github.com/mkokoulin/LAN-GS-backend/internal/helpers"
 	"github.com/mkokoulin/LAN-GS-backend/internal/router"
 	"github.com/mkokoulin/LAN-GS-backend/internal/server"
 	"github.com/mkokoulin/LAN-GS-backend/internal/services"
@@ -16,7 +15,7 @@ import (
 )
 
 func main() {
-	helpers.Generate()
+	// helpers.Generate()
 	// create api context
 	ctx := context.Background()
 	g, ctx := errgroup.WithContext(ctx)
@@ -55,7 +54,8 @@ func main() {
 	// var stop func(ctx context.Context) error
 
 	g.Go(func() error {
-		err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
+		// err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
+		_, err = s.Start()
 		if err != nil {
 			return fmt.Errorf("%v", err)
 		}
