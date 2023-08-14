@@ -13,9 +13,6 @@ RUN go mod download
 # Build the Go app
 RUN go build -o main .
 
-# Fix typo: change "EXPOSE" to "HEALTHCHECK" and add command to check if the container is healthy
-HEALTHCHECK CMD curl --fail http://localhost:8080 || exit 1
-
 # Expose port 8080 for incoming traffic
 EXPOSE 8080
 
