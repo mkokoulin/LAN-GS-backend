@@ -12,6 +12,7 @@ import (
 
 type GSEventsInterface interface {
 	GetEvents(ctx context.Context) ([]services.Event, error)
+	GetEvent(ctx context.Context, eventId string) (services.Event, error)
 	UpdateEvent(ctx context.Context, event services.Event) error
 }
 
@@ -55,6 +56,36 @@ func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := json.Marshal(events)
+
+	if err == nil {
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+		w.WriteHeader(http.StatusOK)
+
+		_, err = w.Write(body)
+		if err == nil {
+			return
+		}
+	}
+}
+
+func (h *Handlers) GetEvent(w http.ResponseWriter, r *http.Request) {
+	setupCORS(&w, r)
+
+	eventId := r.URL.Query().Get("eventId")
+
+	if eventId == "" {
+		http.Error(w, "eventId cannot be an empty", http.StatusBadRequest)
+		return
+	}
+
+	event, err := h.events.GetEvent(r.Context(), eventId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	body, err := json.Marshal(event)
 
 	if err == nil {
 		w.Header().Add("Content-Type", "application/json; charset=utf-8")

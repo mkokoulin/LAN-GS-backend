@@ -2,13 +2,13 @@ package config
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/caarlos0/env/v6"
 )
 
 type GoogleConfig struct {
 	Scope string `env:"SCOPE" json:"SCOPE"`
-	GoogleSecret string `env:"GOOGLE_SECRET" json:"GOOGLE_SECRET"`
 }
 
 type EventTable struct {
@@ -62,16 +62,22 @@ func New() (*Config, error) {
 		return nil, fmt.Errorf("%v", err)
 	}
 
+
+
 	gsc.Event = eventTable
 	gsc.Entries = entriesTable
-
-	gc.Scope="https://www.googleapis.com/auth/spreadsheets"
-	gsc.Event.SpreadsheetId="1zssMHkizrIetXEMkV3Qo-wj6QBiv9jf3A2S-g5IaoE0"
-	gsc.Event.ReadRange="master!2:1000"
-	gsc.Entries.SpreadsheetId="1IglEBmeCFs9FwL0bQ1vh93b-wJp6KTWurRX2sxcsd3A"
-
+	
 	cfg.Google = gc
 	cfg.GoogleSheets = gsc
+
+	log.Default().Printf("SERVER_ADDRESS: %v", cfg.ServerAddress)
+
+	log.Default().Printf("SCOPE: %v", cfg.Google.Scope)
+
+	log.Default().Printf("EVENT_SPREADSHEET_ID: %v", cfg.GoogleSheets.Event.SpreadsheetId)
+	log.Default().Printf("EVENT_READ_RANGE: %v", cfg.GoogleSheets.Event.ReadRange)
+	log.Default().Printf("ENTRIES_SPREADSHEET_ID: %v", cfg.GoogleSheets.Entries.SpreadsheetId)
+	log.Default().Printf("ENTRIES_READ_RANGE: %v", cfg.GoogleSheets.Entries.ReadRange)
 
 	return &cfg, nil
 }

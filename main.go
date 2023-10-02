@@ -15,7 +15,6 @@ import (
 )
 
 func main() {
-	// helpers.Generate()
 	// create api context
 	ctx := context.Background()
 	g, ctx := errgroup.WithContext(ctx)
@@ -27,7 +26,7 @@ func main() {
 		return
 	}
 
-	gc, err := services.NewGoogleClient(ctx, cfg.Google.GoogleSecret, cfg.Google.Scope)
+	gc, err := services.NewGoogleClient(ctx, cfg.Google.Scope)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -49,7 +48,7 @@ func main() {
 
 	r := router.New(h)
 
-	s := server.New(r)
+	s := server.New(r, cfg.ServerAddress)
 
 	// var stop func(ctx context.Context) error
 

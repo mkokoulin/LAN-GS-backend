@@ -26,7 +26,7 @@ type Event struct {
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
-	Type         string `json:"type" mapstructure:"type"`
+	Type     	 string `json:"type" mapstructure:"type"`
 }
 
 type EventResponse struct {
@@ -37,7 +37,7 @@ type EventResponse struct {
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
-	Type         string `json:"type" mapstructure:"type"`
+	Type     	string `json:"type" mapstructure:"type"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
@@ -49,7 +49,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Link         string `json:"link" mapstructure:"link"`
 		ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 		Capacity     string `json:"capacity" mapstructure:"capacity"`
-		Type         string `json:"type" mapstructure:"type"`
+		Type     	 string `json:"type" mapstructure:"type"`
 	}{
 		Id:           e.Id,
 		Name:         e.Name,
@@ -58,7 +58,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Link:         e.Link,
 		ExternalLink: e.ExternalLink,
 		Capacity:     e.Capacity,
-		Type:     	  e.Type,
+		Type: 		  e.Type,
 	}
 	return json.Marshal(aliasValue)
 }
@@ -77,10 +77,17 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		Link:         ev.Link,
 		ExternalLink: ev.ExternalLink,
 		Capacity:     ev.Capacity,
-		Type:         ev.Type,
+		Type:     	  ev.Type,
 	}
 
 	return nil
+}
+
+func isNotExpired(date string) bool {
+	d, _ := time.Parse("02.01.2006", date)
+	now := time.Now()
+
+	return d.Add(time.Hour * 24).After(now)
 }
 
 func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheetId, readRange string) (*EventsSheetService, error) {
@@ -129,16 +136,55 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 
 		mapstructure.Decode(e, &event)
 
-		now := time.Now()
-
-		date, _ := time.Parse("02.01.2006", event.Date)
-
-		if (date.Add(time.Hour * 24).After(now)) {
+		if (isNotExpired(event.Date)) {
 			events = append(events, event)
 		}
 	}
 
 	return events, nil
+}
+
+func (ESS *EventsSheetService) GetEvent(ctx context.Context, eventId string) (Event, error) {
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, ESS.readRange).Do()
+
+	event := Event{}
+
+	if err != nil || res.HTTPStatusCode != 200 {
+		return event, fmt.Errorf("%v", err)
+	}
+
+
+	colMap := map[int]string{
+		0: "id",
+		1: "name",
+		2: "date",
+		3: "description",
+		4: "link",
+		5: "externalLink",
+		6: "capacity",
+		7: "type",
+	}
+
+	for _, val := range res.Values {
+		e := map[string]interface{}{}
+
+		for i, v := range val {
+			col, ok := colMap[i]
+			if ok {
+				e[col] = v
+			}
+		}
+
+		var eventTmp Event
+
+		mapstructure.Decode(e, &eventTmp)
+
+		if (isNotExpired(eventTmp.Date) && eventTmp.Id == eventId) {
+			event = eventTmp
+		}
+	}
+
+	return event, nil
 }
 
 func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) error {

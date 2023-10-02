@@ -72,11 +72,11 @@ func Generate() error {
 		return err
 	}
 
-	if err := os.WriteFile("/taplink-cert.pem", certPEM.Bytes(), 0644); err != nil {
+	if err := os.WriteFile("./taplink-cert.pem", certPEM.Bytes(), 0644); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := os.WriteFile("/taplink-key.pem", privateKeyPEM.Bytes(), 0600); err != nil {
+	if err := os.WriteFile("./taplink-key.pem", privateKeyPEM.Bytes(), 0600); err != nil {
 		log.Fatal(err)
 	}
 

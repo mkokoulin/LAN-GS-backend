@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -11,10 +13,19 @@ type Server struct {
 	s *http.Server
 }
 
-func New(handler *chi.Mux) *Server {
+func New(handler *chi.Mux, addr string) *Server {
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr: fmt.Sprintf(":%v", addr),
 		Handler: handler,
+		TLSConfig: &tls.Config{
+			GetCertificate: func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+				cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
+				if err != nil {
+					return nil, err
+				}
+				return &cert, nil
+			},
+		},
 	}
 
 	return &Server {
@@ -32,8 +43,8 @@ func (s *Server) Start() (func(ctx context.Context) error, error) {
 }
 
 // StartTLS is the method to start the server with tls
-func (s *Server) StartTLS(certFile, keyFile string) error {
-	err := s.s.ListenAndServeTLS(certFile, keyFile)
+func (s *Server) StartTLS() error {
+	err := s.s.ListenAndServeTLS("", "")
 	if err != nil {
 		return err
 	}
