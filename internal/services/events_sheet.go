@@ -5,11 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
+)
+
+const (
+	ColID = 0
+	ColName = 1
+	ColDate = 2
+	ColDescription = 3
+	ColLink = 4
+	ColExternalLink = 5
+	ColCapacity = 6
+	ColType = 7
+	ColShowForm = 8 
 )
 
 type EventsSheetService struct {
@@ -27,6 +40,7 @@ type Event struct {
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
 	Type     	 string `json:"type" mapstructure:"type"`
+	ShowForm     bool `json:"showForm" mapstructure:"showForm"`
 }
 
 type EventResponse struct {
@@ -37,7 +51,8 @@ type EventResponse struct {
 	Link         string `json:"link" mapstructure:"link"`
 	ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
-	Type     	string `json:"type" mapstructure:"type"`
+	Type     	 string `json:"type" mapstructure:"type"`
+	ShowForm     bool `json:"showForm" mapstructure:"showForm"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
@@ -50,6 +65,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		ExternalLink string `json:"externalLink" mapstructure:"externalLink"`
 		Capacity     string `json:"capacity" mapstructure:"capacity"`
 		Type     	 string `json:"type" mapstructure:"type"`
+		ShowForm     bool   `json:"showForm" mapstructure:"showForm"`
 	}{
 		Id:           e.Id,
 		Name:         e.Name,
@@ -59,6 +75,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		ExternalLink: e.ExternalLink,
 		Capacity:     e.Capacity,
 		Type: 		  e.Type,
+		ShowForm:     e.ShowForm,
 	}
 	return json.Marshal(aliasValue)
 }
@@ -78,6 +95,7 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 		ExternalLink: ev.ExternalLink,
 		Capacity:     ev.Capacity,
 		Type:     	  ev.Type,
+		ShowForm:     ev.ShowForm,
 	}
 
 	return nil
@@ -120,15 +138,22 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 		5: "externalLink",
 		6: "capacity",
 		7: "type",
+		8: "showForm",
 	}
 
 	for _, val := range res.Values {
 		e := map[string]interface{}{}
 
+		showForm, _ := strconv.ParseBool(val[ColShowForm].(string))
+
 		for i, v := range val {
 			col, ok := colMap[i]
 			if ok {
 				e[col] = v
+			}
+
+			if i == ColShowForm {
+				e[col] = showForm;
 			}
 		}
 
@@ -163,6 +188,7 @@ func (ESS *EventsSheetService) GetEvent(ctx context.Context, eventId string) (Ev
 		5: "externalLink",
 		6: "capacity",
 		7: "type",
+		8: "showForm",
 	}
 
 	for _, val := range res.Values {
@@ -197,12 +223,12 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 	}
 
 	for i, v := range res.Values {
-		if v[0].(string)+v[1].(string) == event.Name+event.Description {
+		if len(v) > 0 && v[0] == event.Id {
 			rowNumber = i + 2
 		}
 	}
 
-	updateRowRange := fmt.Sprintf("A%d:E%d", rowNumber, rowNumber)
+	updateRowRange := fmt.Sprintf("A%d:I%d", rowNumber, rowNumber)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
@@ -212,6 +238,8 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 			event.Description,
 			event.Link,
 			event.ExternalLink,
+			event.Capacity,
+			event.Type,
 		}},
 	}
 

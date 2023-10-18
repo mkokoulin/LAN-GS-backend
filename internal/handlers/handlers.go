@@ -146,7 +146,7 @@ func (h *Handlers) CreateEntrie(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) UpdateEntrie(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	// setupCORS(&w, r)
+	setupCORS(&w, r)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
