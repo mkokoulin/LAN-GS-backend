@@ -23,6 +23,7 @@ const (
 	ColCapacity = 6
 	ColType = 7
 	ColShowForm = 8 
+	ColImg = 9
 )
 
 type EventsSheetService struct {
@@ -41,6 +42,7 @@ type Event struct {
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
 	Type     	 string `json:"type" mapstructure:"type"`
 	ShowForm     bool `json:"showForm" mapstructure:"showForm"`
+	Img     	 string `json:"img" mapstructure:"img"`
 }
 
 type EventResponse struct {
@@ -53,6 +55,7 @@ type EventResponse struct {
 	Capacity     string `json:"capacity" mapstructure:"capacity"`
 	Type     	 string `json:"type" mapstructure:"type"`
 	ShowForm     bool `json:"showForm" mapstructure:"showForm"`
+	Img     	 string `json:"img" mapstructure:"img"`
 }
 
 func (e *Event) MarshalJSON() ([]byte, error) {
@@ -66,6 +69,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Capacity     string `json:"capacity" mapstructure:"capacity"`
 		Type     	 string `json:"type" mapstructure:"type"`
 		ShowForm     bool   `json:"showForm" mapstructure:"showForm"`
+		Img     	 string   `json:"img" mapstructure:"img"`
 	}{
 		Id:           e.Id,
 		Name:         e.Name,
@@ -76,6 +80,7 @@ func (e *Event) MarshalJSON() ([]byte, error) {
 		Capacity:     e.Capacity,
 		Type: 		  e.Type,
 		ShowForm:     e.ShowForm,
+		Img:          e.Img,
 	}
 	return json.Marshal(aliasValue)
 }
@@ -90,12 +95,14 @@ func (e *Event) UnmarshalJSON(b []byte) error {
 	*e = Event{
 		Id:           ev.Id,
 		Name:         ev.Name,
+		Date:         e.Date,
 		Description:  ev.Description,
 		Link:         ev.Link,
 		ExternalLink: ev.ExternalLink,
 		Capacity:     ev.Capacity,
 		Type:     	  ev.Type,
 		ShowForm:     ev.ShowForm,
+		Img:     	  ev.Img,
 	}
 
 	return nil
@@ -122,7 +129,7 @@ func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheet
 }
 
 func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
-	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, ESS.readRange).Do()
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, "master!A:Z").Do()
 	if err != nil || res.HTTPStatusCode != 200 {
 		return nil, fmt.Errorf("%v", err)
 	}
@@ -139,6 +146,7 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 		6: "capacity",
 		7: "type",
 		8: "showForm",
+		9: "img",
 	}
 
 	for _, val := range res.Values {
@@ -189,6 +197,7 @@ func (ESS *EventsSheetService) GetEvent(ctx context.Context, eventId string) (Ev
 		6: "capacity",
 		7: "type",
 		8: "showForm",
+		9: "img",
 	}
 
 	for _, val := range res.Values {
@@ -215,9 +224,8 @@ func (ESS *EventsSheetService) GetEvent(ctx context.Context, eventId string) (Ev
 
 func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) error {
 	var rowNumber int
-	readRange := "master!2:1000"
 
-	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, readRange).Do()
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, ESS.readRange).Do()
 	if err != nil || res.HTTPStatusCode != 200 {
 		return fmt.Errorf("%v", err)
 	}
@@ -228,7 +236,7 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 		}
 	}
 
-	updateRowRange := fmt.Sprintf("A%d:I%d", rowNumber, rowNumber)
+	updateRowRange := fmt.Sprintf("A%d:J%d", rowNumber, rowNumber)
 
 	row := &sheets.ValueRange{
 		Values: [][]interface{}{{
@@ -240,6 +248,8 @@ func (ESS *EventsSheetService) UpdateEvent(ctx context.Context, event Event) err
 			event.ExternalLink,
 			event.Capacity,
 			event.Type,
+			event.ShowForm,
+			event.Img,
 		}},
 	}
 
