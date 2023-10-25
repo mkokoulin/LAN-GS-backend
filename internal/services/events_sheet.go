@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	// "strconv"
 	"time"
 
 	"github.com/mitchellh/mapstructure"
@@ -129,7 +131,7 @@ func NewEventsSheets(ctx context.Context, googleClient *http.Client, spreadsheet
 }
 
 func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
-	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, "master!A:Z").Do()
+	res, err := ESS.srv.Spreadsheets.Values.Get(ESS.spreadsheetId, ESS.readRange).Do()
 	if err != nil || res.HTTPStatusCode != 200 {
 		return nil, fmt.Errorf("%v", err)
 	}
@@ -152,7 +154,11 @@ func (ESS *EventsSheetService) GetEvents(ctx context.Context) ([]Event, error) {
 	for _, val := range res.Values {
 		e := map[string]interface{}{}
 
-		showForm, _ := strconv.ParseBool(val[ColShowForm].(string))
+		showForm := true
+
+		if len(val) > ColShowForm {
+			showForm, _ = strconv.ParseBool(val[ColShowForm].(string))
+		}
 
 		for i, v := range val {
 			col, ok := colMap[i]
