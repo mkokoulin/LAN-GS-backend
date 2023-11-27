@@ -26,19 +26,19 @@ func main() {
 		return
 	}
 
-	gc, err := services.NewGoogleClient(ctx, cfg.Google.Scope)
+	gc, err := services.NewGoogleClient(ctx, cfg.GoogleCloudConfig, cfg.Scope)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	eventsSheets, err := services.NewEventsSheets(ctx, gc, cfg.GoogleSheets.Event.SpreadsheetId, cfg.GoogleSheets.Event.ReadRange)
+	eventsSheets, err := services.NewEventsSheets(ctx, gc, cfg.EventsSpreadsheetId, cfg.EventsReadRange)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	entriesSheets, err := services.NewEntriesSheets(ctx, gc, cfg.GoogleSheets.Entries.SpreadsheetId, cfg.GoogleSheets.Entries.ReadRange)
+	entriesSheets, err := services.NewEntriesSheets(ctx, gc, cfg.EntriesSpreadsheetId, cfg.EntriesReadRange)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -48,12 +48,9 @@ func main() {
 
 	r := router.New(h)
 
-	s := server.New(r, cfg.ServerAddress)
-
-	// var stop func(ctx context.Context) error
+	s := server.New(r, cfg.Port)
 
 	g.Go(func() error {
-		// err = s.StartTLS("taplink-cert.pem", "taplink-key.pem")
 		_, err = s.Start()
 		if err != nil {
 			return fmt.Errorf("%v", err)
