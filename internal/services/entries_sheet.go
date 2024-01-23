@@ -213,18 +213,28 @@ func (ESS *EntriesSheetService) GetUniqueEntries(ctx context.Context) (map[strin
 	}
 
 	for _, v := range res.Values {
-		eventId := v[EventId]
-		willCome, _ := strconv.ParseBool(v[WillCome].(string))
-
-		if willCome {
-			_, ok := uniqueEntries[eventId.(string)]
-
-			outInt, _ := strconv.Atoi(v[NumberOfPersons].(string))
-	
+		fmt.Println(len(v))
+		if len(v) >= 11 {
+			eventId, ok := v[EventId].(string)
+		
 			if ok {
-				uniqueEntries[eventId.(string)] += outInt
-			} else {
-				uniqueEntries[eventId.(string)] = outInt
+				willCome, ok := v[WillCome].(string)
+	
+				if ok {
+					willCome, _ := strconv.ParseBool(willCome)
+	
+					if willCome {
+						_, ok := uniqueEntries[eventId]
+			
+						outInt, _ := strconv.Atoi(v[NumberOfPersons].(string))
+				
+						if ok {
+							uniqueEntries[eventId] += outInt
+						} else {
+							uniqueEntries[eventId] = outInt
+						}
+					}
+				}
 			}
 		}
 	}
