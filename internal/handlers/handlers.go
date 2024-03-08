@@ -44,6 +44,13 @@ func setupCORS(w *http.ResponseWriter, req *http.Request) {
 func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
 
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
+
 	events, err := h.events.GetEvents(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -71,6 +78,13 @@ func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) GetEvent(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
+
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
 
 	eventId := r.URL.Query().Get("eventId")
 
@@ -103,6 +117,13 @@ func (h *Handlers) CreateEntrie(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	setupCORS(&w, r)
+
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -148,6 +169,13 @@ func (h *Handlers) UpdateEntrie(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -180,6 +208,13 @@ func (h *Handlers) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	setupCORS(&w, r)
+
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -220,6 +255,13 @@ func (h *Handlers) CancelEntrie(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -256,6 +298,13 @@ func (h *Handlers) CancelEntrie(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) GetUniqueEntries(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
+
+	s := r.Header.Get("secret")
+
+	if s != "0a41c238c148d57ab77a850ce491bc00" {
+		w.WriteHeader(http.StatusNotFound);
+		return;
+	}
 
 	entries, err := h.entries.GetUniqueEntries(r.Context())
 	if err != nil {
