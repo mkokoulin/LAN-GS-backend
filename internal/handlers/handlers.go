@@ -36,7 +36,7 @@ func New(events GSEventsInterface, entries GSEntriesInterface) *Handlers {
 }
 
 func setupCORS(w *http.ResponseWriter, req *http.Request) {
-    (*w).Header().Set("Access-Control-Allow-Origin", "*")
+    (*w).Header().Set("Access-Control-Allow-Origin", "https://lettersandnumbers.am")
     (*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
     (*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
@@ -44,12 +44,12 @@ func setupCORS(w *http.ResponseWriter, req *http.Request) {
 func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	events, err := h.events.GetEvents(r.Context())
 	if err != nil {
@@ -79,12 +79,12 @@ func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) GetEvent(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	eventId := r.URL.Query().Get("eventId")
 
@@ -118,12 +118,12 @@ func (h *Handlers) CreateEntrie(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -169,12 +169,12 @@ func (h *Handlers) UpdateEntrie(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -209,12 +209,12 @@ func (h *Handlers) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -255,12 +255,12 @@ func (h *Handlers) CancelEntrie(w http.ResponseWriter, r *http.Request) {
 
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -299,12 +299,12 @@ func (h *Handlers) CancelEntrie(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) GetUniqueEntries(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
 
-	s := r.Header.Get("secret")
+	// s := r.Header.Get("X-Secret")
 
-	if s != "0a41c238c148d57ab77a850ce491bc00" {
-		w.WriteHeader(http.StatusNotFound);
-		return;
-	}
+	// if s != "0a41c238c148d57ab77a850ce491bc00" {
+	// 	w.WriteHeader(http.StatusNotFound);
+	// 	return;
+	// }
 
 	entries, err := h.entries.GetUniqueEntries(r.Context())
 	if err != nil {

@@ -213,7 +213,6 @@ func (ESS *EntriesSheetService) GetUniqueEntries(ctx context.Context) (map[strin
 	}
 
 	for _, v := range res.Values {
-		fmt.Println(len(v))
 		if len(v) >= 11 {
 			eventId, ok := v[EventId].(string)
 		
