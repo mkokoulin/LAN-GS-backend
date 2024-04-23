@@ -99,6 +99,11 @@ func (h *Handlers) GetEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if event.Id == "" {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	body, err := json.Marshal(event)
 
 	if err == nil {
