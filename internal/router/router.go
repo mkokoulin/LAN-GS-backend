@@ -21,6 +21,7 @@ func New(h *handlers.Handlers) *chi.Mux {
 		r.Post("/api/entries", h.CreateEntrie)
 		r.Post("/api/entries/cancel", h.CancelEntrie)
 		r.Put("/api/entries/update", h.UpdateEntrie)
+		r.Post("/api/b2b/request", h.CreateB2bRequest)
 	})
 
 	return router

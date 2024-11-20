@@ -44,7 +44,13 @@ func main() {
 		return
 	}
 
-	h := handlers.New(eventsSheets, entriesSheets)
+	b2bRequestSheets, err := services.NewB2bRequestSheets(ctx, gc, cfg.B2bRequestsSpreadsheetId, cfg.EntriesReadRange)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	h := handlers.New(eventsSheets, entriesSheets, b2bRequestSheets)
 
 	r := router.New(h)
 

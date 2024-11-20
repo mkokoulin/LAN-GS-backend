@@ -23,15 +23,21 @@ type GSEntriesInterface interface {
 	GetUniqueEntries(ctx context.Context) (map[string]int, error)
 }
 
+type B2bRequestsInterface interface {
+	CreateB2bRequest(ctx context.Context, b2bRequest services.B2bRequest) error
+}
+
 type Handlers struct {
 	events GSEventsInterface
 	entries GSEntriesInterface
+	b2bRequests B2bRequestsInterface
 }
 
-func New(events GSEventsInterface, entries GSEntriesInterface) *Handlers {
+func New(events GSEventsInterface, entries GSEntriesInterface, b2bRequests B2bRequestsInterface) *Handlers {
 	return &Handlers{
 		events: events,
 		entries: entries,
+		b2bRequests: b2bRequests,
 	}
 }
 
@@ -333,5 +339,42 @@ func (h *Handlers) GetUniqueEntries(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			return
 		}
+	}
+}
+
+func (h *Handlers) CreateB2bRequest(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	setupCORS(&w, r)
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(body) == 0 {
+		http.Error(w, "the body cannot be an empty", http.StatusBadRequest)
+		return
+	}
+
+	b2bRequest := services.B2bRequest {}
+
+	err = json.Unmarshal(body, &b2bRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.b2bRequests.CreateB2bRequest(r.Context(), b2bRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err == nil {
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
