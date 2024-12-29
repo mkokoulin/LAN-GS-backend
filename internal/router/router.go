@@ -19,6 +19,7 @@ func New(h *handlers.Handlers) *chi.Mux {
 		r.Post("/api/events/update", h.UpdateEvent)
 		r.Get("/api/entries/unique", h.GetUniqueEntries)
 		r.Post("/api/entries", h.CreateEntrie)
+		r.Post("/api/booking", h.CreateBooking)
 		r.Post("/api/entries/cancel", h.CancelEntrie)
 		r.Put("/api/entries/update", h.UpdateEntrie)
 		r.Post("/api/b2b/request", h.CreateB2bRequest)

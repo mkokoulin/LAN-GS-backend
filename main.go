@@ -50,7 +50,13 @@ func main() {
 		return
 	}
 
-	h := handlers.New(eventsSheets, entriesSheets, b2bRequestSheets)
+	bookingSheets, err := services.NewBookingSheets(ctx, gc, cfg.BookingSpreadsheetId)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	h := handlers.New(eventsSheets, entriesSheets, b2bRequestSheets, bookingSheets)
 
 	r := router.New(h)
 

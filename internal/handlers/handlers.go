@@ -27,17 +27,23 @@ type B2bRequestsInterface interface {
 	CreateB2bRequest(ctx context.Context, b2bRequest services.B2bRequest) error
 }
 
+type BookingInterface interface {
+	CreateBooking(ctx context.Context, booking services.Booking) error
+}
+
 type Handlers struct {
 	events GSEventsInterface
 	entries GSEntriesInterface
 	b2bRequests B2bRequestsInterface
+	booking BookingInterface
 }
 
-func New(events GSEventsInterface, entries GSEntriesInterface, b2bRequests B2bRequestsInterface) *Handlers {
+func New(events GSEventsInterface, entries GSEntriesInterface, b2bRequests B2bRequestsInterface, booking BookingInterface) *Handlers {
 	return &Handlers{
 		events: events,
 		entries: entries,
 		b2bRequests: b2bRequests,
+		booking: booking,
 	}
 }
 
@@ -49,13 +55,6 @@ func setupCORS(w *http.ResponseWriter, req *http.Request) {
 
 func (h *Handlers) GetEvents(w http.ResponseWriter, r *http.Request) {
 	setupCORS(&w, r)
-
-	// s := r.Header.Get("X-Secret")
-
-	// if s != "0a41c238c148d57ab77a850ce491bc00" {
-	// 	w.WriteHeader(http.StatusNotFound);
-	// 	return;
-	// }
 
 	events, err := h.events.GetEvents(r.Context())
 	if err != nil {
@@ -173,6 +172,41 @@ func (h *Handlers) CreateEntrie(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func (h *Handlers) CreateBooking(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	setupCORS(&w, r)
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if len(body) == 0 {
+		http.Error(w, "the body cannot be an empty", http.StatusBadRequest)
+		return
+	}
+
+	booking := services.Booking {}
+
+	err = json.Unmarshal(body, &booking)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = h.booking.CreateBooking(r.Context(), booking)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *Handlers) UpdateEntrie(w http.ResponseWriter, r *http.Request) {

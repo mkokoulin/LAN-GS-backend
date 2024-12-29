@@ -27,6 +27,7 @@ type Config struct {
 	EventsReadRange string `env:"EVENTS_READ_RANGE" json:"EVENTS_READ_RANGE"`
 	EntriesSpreadsheetId string `env:"ENTRIES_SPREADSHEET_ID" json:"ENTRIES_SPREADSHEET_ID"`
 	B2bRequestsSpreadsheetId string `env:"B2B_REQUESTS_SPREADSHEET_ID" json:"B2B_REQUESTS_SPREADSHEET_ID"`
+	BookingSpreadsheetId string `env:"BOOKING_SPREADSHEET_ID" json:"BOOKING_SPREADSHEET_ID"`
 	EntriesReadRange string `env:"ENTRIES_READ_RANGE" json:"ENTRIES_READ_RANGE"`
 	GoogleCloudConfig GoogleCloudConfig `env:"GOOGLE_CLOUD_CONFIG" json:"GOOGLE_CLOUD_CONFIG"`
 }
@@ -69,6 +70,12 @@ func New() (*Config, error) {
 		return nil, fmt.Errorf("environment variable %v is not set or empty", "B2B_REQUESTS_SPREADSHEET_ID")
 	}
 	log.Default().Printf("[LAN-GS-BACKEND] B2B_REQUESTS_SPREADSHEET_ID: %v", cfg.B2bRequestsSpreadsheetId)
+
+	cfg.BookingSpreadsheetId = os.Getenv("BOOKING_SPREADSHEET_ID")
+	if cfg.Scope == "" {
+		return nil, fmt.Errorf("environment variable %v is not set or empty", "BOOKING_SPREADSHEET_ID")
+	}
+	log.Default().Printf("[LAN-GS-BACKEND] BOOKING_SPREADSHEET_ID: %v", cfg.BookingSpreadsheetId)
 
 	cfg.EntriesReadRange = os.Getenv("ENTRIES_READ_RANGE")
 	if cfg.Scope == "" {
