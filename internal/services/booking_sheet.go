@@ -27,6 +27,7 @@ type Booking struct {
 	Telegram string `json:"telegram" mapstructure:"telegram"`
 	Date string `json:"date" mapstructure:"date"`
 	Comment	string `json:"comment" mapstructure:"comment"`
+	Source	string `json:"source" mapstructure:"source"`
 }
 
 func NewBookingSheets(ctx context.Context, googleClient *http.Client, spreadsheetId string) (*BookingSheetService, error) {
@@ -70,6 +71,7 @@ func (ESS *BookingSheetService) CreateBooking(ctx context.Context, booking Booki
 			booking.Telegram,
 			booking.Date,
 			booking.Comment,
+			booking.Source,
 		}},
 	}
 
