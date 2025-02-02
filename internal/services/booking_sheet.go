@@ -25,7 +25,6 @@ type Booking struct {
 	NumberOfPersons string `json:"numberOfPersons" mapstructure:"numberOfPersons"`
 	Instagram string `json:"instagram" mapstructure:"instagram"`
 	Telegram string `json:"telegram" mapstructure:"telegram"`
-	Date string `json:"date" mapstructure:"date"`
 	Comment	string `json:"comment" mapstructure:"comment"`
 	Source	string `json:"source" mapstructure:"source"`
 }
@@ -69,7 +68,6 @@ func (ESS *BookingSheetService) CreateBooking(ctx context.Context, booking Booki
 			booking.NumberOfPersons,
 			booking.Instagram,
 			booking.Telegram,
-			booking.Date,
 			booking.Comment,
 			booking.Source,
 		}},
